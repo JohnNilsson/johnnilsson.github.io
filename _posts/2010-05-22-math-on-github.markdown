@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Math on GitHub
-category: github
+tags: github
 ---
 
 This page is written in [Markdown] and then processed by [Jekyll] into
