@@ -14,14 +14,13 @@ to make do with 1Gb of RAM and to run the OS from a [SD card].
 
 In total this gives med a full HD-capable HTPC for roughly 2500 SEK
 
-Now actually installing XBMC on this thing proved to be somehwat harder than anticipated so 
-here's what I did to get everything installed.
+Actually installing XBMC on this thing proved to be somehwat harder than anticipated so here's what I did to get everything installed.
 
 ## Installing XBMC
 
-XBMC and [XBMCFreak] release live systems as ISO-images that can be put on a CD or USB stick for booting into a live XBMC-system. XBMCFreak aims to make these images work with ION-base systems such as the HD-ID11. I haven't had much luck with eith of them though.
+XBMC and [XBMCFreak] release live systems as ISO-images that can be put on a CD or USB stick for booting into a live XBMC-system. XBMCFreak aims to make these images work with ION-base systems such as the HD-ID11. I haven't had much luck with either of them though out of the box.
 
-First obstacle has been actually getting a bootable USB-stick. I've tried a couple of tools that claimed to be capable of turning andy ISO of a live system into a bootable USB. None did an impressive job on the XBMC ISOs though. Stargin from a pure Ubuntu system might work though.
+First obstacle has been actually getting a bootable USB-stick. I've tried a couple of tools that claimed to be capable of turning andy ISO of a live system into a bootable USB. None did an impressive job on the XBMC ISOs. Starting from a pure Ubuntu system might work though.
 
 In the end I used XBMCFreaks special [USB edition]. However if I were to do it again I would probably start from a stock Ubuntu ISO. Upgrading from Lucid to Maverick while keeping the xbmc-live package intact provided some challenge.
 
@@ -32,7 +31,7 @@ To get the system to play nice with the SD-card while booting from USB I had to 
 
 ## Configuring Audio
 
-The most frustrating thing about this whole experience has been getting the HDMI audio to work. Scanning the web for help gives lots of usless advice that mostly doesn't work, and almost never provide any rationale for suggestions.
+The most frustrating thing about this whole experience has been getting the HDMI audio to work. Scanning the web for help gives lots of usless advice that mostly doesn't work, and almost never provide any rationale for the suggestions.
 
 To actually pipe sound through the HDMI-interface you need the GPU up and running. Apparently audio and video has to be mixed in some funny way involving the NVidia
 drivers. So make sure the nvidia drivers are 190+ (I'm running 260 something now) and that the xorg server is running when testing stuff.
