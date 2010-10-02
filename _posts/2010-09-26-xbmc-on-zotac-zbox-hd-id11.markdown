@@ -4,6 +4,13 @@ title: XBMC on Zotac Zbox HD-ID11
 tags: howto
 ---
 
+**Update:** *Since doing this I've installed [OpenELEC.tv] instead. This is a XBMC distribution that aims to be lean (~80MB for the entire system), optimized to run from flash storage and boots very fast. Installation took under minute.
+
+Instead of messing with asound.conf I entered plughw:0,7 as a custom audio device in the XBMC configuration screen for audio. This won't get you navigation sounds, but atleast it works with video.*
+
+[OpenELEC.tv]:http://openelec.tv/
+
+
 I've bought a [Zotac Zbox HD-ID11] with the intent of running [XBMC] on it as a
 replacement for my now old Popcorn Hour A-100. To keep the cost down I decided
 to make do with 1Gb of RAM and to run the OS from a [SD card].
