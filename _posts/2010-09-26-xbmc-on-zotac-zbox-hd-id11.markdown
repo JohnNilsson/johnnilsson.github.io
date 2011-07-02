@@ -16,7 +16,7 @@ replacement for my now old Popcorn Hour A-100. To keep the cost down I decided
 to make do with 1Gb of RAM and to run the OS from a [SD card].
 
 [Zotac Zbox HD-ID11]: http://zotac.com/index.php?option=com_wrapper&view=wrapper&Itemid=100083&lang=en
-[XBOX]: http://xbmc.org/
+[XBMC]: http://xbmc.org/
 [SD card]: http://www.prisjakt.nu/produkt.php?p=443866
 
 In total this gives med a full HD-capable HTPC for roughly 2500 SEK
