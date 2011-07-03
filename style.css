@@ -18,13 +18,19 @@ strong {font-weight: bold;}
 #main {
   margin: auto;
   width: 40em;
+  font-family: Candara, "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Verdana, Arial, sans-serif;
+/*  font-size: 110%;
+  line-height: 125%; */
+  text-align: justify;
 }
 
-p {
-  font-family: Candara, "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Verdana, Arial, sans-serif;
-  font-size: 1.25em;
-  line-height: 150%;
-  text-align: justify;
+#disqus_thread {
+  margin-top: 20ex;
+  border-top: 1px solid black;
+}
+
+li {
+  margin-left: 2.5em;
 }
 
 h1, h2, h3, h4, h5 {

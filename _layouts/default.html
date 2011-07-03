@@ -4,6 +4,7 @@
   <title>{{ page.title }}</title>
   <meta name="author" content="John Nilsson" />
   <link rel="stylesheet" href="/style.css" type="text/css" />
+  <link rel="stylesheet" href="/syntax.css" type="text/css" />
   <script type="text/x-mathjax-config">
     MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$']]}});
   </script>
@@ -14,16 +15,6 @@
 <div id="main">
   <h1><a href="{{ page.url }}">{{ page.title }}</a></li></h1>
   {{ content }}
-  <div id="disqus_thread"></div>
-  <script type="text/javascript">
-    var disqus_shortname = 'johnnilsson-github';
-
-    (function() {
-        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
-        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
-  </script>
 </div>
 </body>
 </html>
