@@ -2,6 +2,7 @@
 layout: post
 title: Type classes for C# programmers
 tags: code
+encoding: utf-8
 ---
 
 Rich Hickey [talked][simple1] [about][simple2] ways to avoid complexity in programming. One of the

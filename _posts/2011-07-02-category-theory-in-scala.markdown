@@ -9,5 +9,5 @@ No blog is complete without a Monad tutorial it seems. The internet is full of t
 
 Now, on to monads then. Monads are sometimes defined as nothing more than a monoid in the category of endofunctors. Which is a wonderful definition for our purposes as it provides a good map for the comming exploration. Monoids? Categories? Endofunctors? Oh my this is going to be fun!
 
-  * [From Monoids to Categories]({% post_url 2011-07-03-from-monoids-to-categories %})
+  * [From Monoids to Categories](/2011/07/03/from-monoids-to-categories.html)
 

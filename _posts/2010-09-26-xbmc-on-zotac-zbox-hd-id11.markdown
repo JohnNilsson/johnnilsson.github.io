@@ -2,6 +2,7 @@
 layout: post
 title: XBMC on Zotac Zbox HD-ID11
 tags: howto
+encoding: utf-8
 ---
 
 **Update:** *Since doing this I've installed [OpenELEC.tv] instead. This is a XBMC distribution that aims to be lean (~80MB for the entire system), optimized to run from flash storage and boots very fast. Installation took under minute.*
