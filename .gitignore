@@ -1,3 +1,4 @@
 _site
 .svn
 *.swp
+_cache
