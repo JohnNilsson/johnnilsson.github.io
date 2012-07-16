@@ -43,9 +43,9 @@ The most frustrating thing about this whole experience has been getting the HDMI
 To actually pipe sound through the HDMI-interface you need the GPU up and running. Apparently audio and video has to be mixed in some funny way involving the NVidia
 drivers. So make sure the nvidia drivers are 190+ (I'm running 260 something now) and that the xorg server is running when testing stuff.
 
-The actual problem is that the hardware is quite new and thus the drivers [hasn't quite caught up yet]. To have any shot of getting it to work you need ALSA version 1.0.23.
+The actual problem is that the hardware is quite new and thus the drivers [hasn't quite caught up yet][hdaudio]. To have any shot of getting it to work you need ALSA version 1.0.23.
 
-[hasn't quite caught up yet]: http://www.kernel.org/pub/linux/kernel/people/tiwai/docs/HD-Audio.html
+[hdaudio]: http://www.kernel.org/pub/linux/kernel/people/tiwai/docs/HD-Audio.html
 
 <pre>
   xbmc@XBMCLive:~$ cat /proc/asound/version
@@ -54,10 +54,10 @@ The actual problem is that the hardware is quite new and thus the drivers [hasn'
 
 Now there seems to be two way to achieve this:
 
-* Update to the latest ALSA release by compiling the source. To this end there is [this handy script] doing all the work.
+* Update to the latest ALSA release by compiling the source. To this end there is [this handy script][updatealsa] doing all the work.
 * Run Ubuntu Maverick Meerkat as your base system. (This is what I did)
 
-[this handy script]: http://ubuntuforums.org/showthread.php?p=6589810
+[updatealsa]: http://ubuntuforums.org/showthread.php?p=6589810
 
 Step two is to make sure the correct audio device is used when playing audio. For some reason the driver will provide you with four different HDMI interfaces.
 <pre>
@@ -79,7 +79,7 @@ Step two is to make sure the correct audio device is used when playing audio. Fo
 
 By default I guess device 3 is used. This won't produce much audio though so you have to tell the system to use one of the other interfaces (a wild guess is that theese interfaces needs to be combined in some manner to enable full surround. As I'm only aiming for 2.0 I can't really tell though).
 
-One way to achieve this is to add this configuration to */etc/asound.conf* (just create the file, [it isn't supposed to be there by default]):
+One way to achieve this is to add this configuration to */etc/asound.conf* (just create the file, [it isn't supposed to be there by default][asoundrc]):
 <pre>
 pcm.!default {
 type hw
@@ -92,7 +92,7 @@ card 0
 }
 </pre>
 
-[it isn't supposed to be there by default]: http://alsa.opensrc.org/.asoundrc
+[asoundrc]: http://alsa.opensrc.org/.asoundrc
 
 There are som tips scattered around the web involving apllying patches and messing around with the internals of ALSA and module loading to get everything setup. For me it was enough to get ALSA 1.0.23 installed and picking the correct audio device as default.
 
