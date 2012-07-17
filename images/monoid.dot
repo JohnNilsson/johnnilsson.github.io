@@ -1,0 +1,11 @@
+digraph monoid {
+
+  //K = 0.3
+  subgraph cluster_0 {
+    label = "$\circ$"
+    m:e->m:ne [label="$e$"]
+    m:ne->m:n [label="$m_1$"]
+    m:n->m:nv [label="$m_2$"]
+    m[label="$M$",shape=circle,fixedsize=true,width=0.3]
+  }
+}

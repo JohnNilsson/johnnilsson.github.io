@@ -1,0 +1,259 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <title>Type classes for C# programmers</title>
+  <meta name="author" content="John Nilsson" />
+  <link rel="stylesheet" href="/style.css" type="text/css" />
+  <link rel="stylesheet" href="/syntax.css" type="text/css" />
+
+  <link href="http://alexgorbatchev.com/pub/sh/current/styles/shCore.css" rel="stylesheet" type="text/css" />
+  <link href="http://alexgorbatchev.com/pub/sh/current/styles/shThemeDefault.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+  <div id="main">
+    <h1><a href="/2012/07/15/type-classes.html">Type classes for C# programmers</a></li></h1>
+    <div class="post">
+  <p>Rich Hickey <a href="http://www.infoq.com/presentations/Simple-Made-Easy" title="Simple Made Easy, Strange Loop 2011">talked</a> <a href="http://www.infoq.com/presentations/Simple-Made-Easy-QCon-London-2012" title="Simple Made Easy, QCon 2012">about</a> ways to avoid complexity in programming. One of the
+the approaches he emphasized was to utilize polymorphism à la carte, which is a reference to a Clojure
+feature called <a href="http://clojure.org/protocols" title="Clojure Protocols">protocols</a> designed to address the <a href="http://c2.com/cgi/wiki?ExpressionProblem" title="The Expression Problem">expression problem</a>. He compared this technique to
+type classes, as a similar feature found in other languages.</p>
+
+<p>Type classes was initially introduced in Haskell and has later been adopted by Scala in the form of
+implicit parameters. Presumably users of those languages will be exposed to the benefits they bring in
+some form or other and traced it to this construct. Those who are stuck with a less capable language,
+like C#, run a slightly lower chance of running in to them and realize what they are though.</p>
+
+<p>This is my attempt to illustrate the concept of type classes for you, and how, to the extent possible
+in C#, they can be used in day to day design of programs.</p>
+
+<h2 id="toc_3">The Expressed Problem</h2>
+
+<p>Let us first of all start with an interesting problem to serve as our guide. Lets take something
+straight forward like: Implement a sum-operation, it should take collection of values and return
+the result of adding them all together.</p>
+
+<p>$$f(S) = \displaystyle\sum_{x \in S} x$$</p>
+
+<h2 id="toc_4">The monomorphic approach</h2>
+
+<p>We could try to implement this by simple case analysis like so:</p>
+<div class="highlight"><pre><code class="c#"><span class="k">public</span> <span class="k">static</span> <span class="kt">object</span> <span class="nf">Sum</span><span class="p">(</span><span class="k">this</span> <span class="n">IEnumerable</span> <span class="n">vals</span><span class="p">,</span> <span class="kt">object</span> <span class="n">zero</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">zero</span> <span class="k">is</span> <span class="kt">int</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">sum</span> <span class="p">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">zero</span><span class="p">;</span>
+        <span class="k">foreach</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="k">in</span> <span class="p">(</span><span class="n">IEnumerable</span><span class="p">&lt;</span><span class="kt">int</span><span class="p">&gt;)</span><span class="n">vals</span><span class="p">)</span>
+            <span class="n">sum</span> <span class="p">+=</span> <span class="n">i</span><span class="p">;</span>
+        <span class="k">return</span> <span class="n">sum</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="nf">NotImplementedException</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>One major problem with this approach is that we have to edit and recompile
+this code each time someone would like to support another case for an addable
+type. Which is precisely what the expression problem is all about.</p>
+
+<p>It also suffers from lack of type safety. Invoking this code will compile
+event if the type we are trying to sum isn&#39;t supported.</p>
+
+<h2 id="toc_5">Ad-hoc polymorphism</h2>
+
+<p>When the case analysis only dispatches on type we can simply use overloading
+to implement the different cases, so called ad-hoc polymorphism.</p>
+<div class="highlight"><pre><code class="c#"><span class="k">public</span> <span class="k">static</span> <span class="kt">int</span> <span class="nf">Sum</span><span class="p">(</span><span class="k">this</span> <span class="n">IEnumerable</span><span class="p">&lt;</span><span class="kt">int</span><span class="p">&gt;</span> <span class="n">ints</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">var</span> <span class="n">sum</span> <span class="p">=</span> <span class="m">0</span><span class="p">;</span>
+    <span class="k">foreach</span> <span class="p">(</span><span class="kt">var</span> <span class="n">i</span> <span class="k">in</span> <span class="n">ints</span><span class="p">)</span>
+        <span class="n">sum</span> <span class="p">+=</span> <span class="n">i</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">sum</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">public</span> <span class="k">static</span> <span class="kt">string</span> <span class="nf">Sum</span><span class="p">(</span><span class="k">this</span> <span class="n">IEnumerable</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">&gt;</span> <span class="n">strings</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">var</span> <span class="n">sum</span> <span class="p">=</span> <span class="kt">string</span><span class="p">.</span><span class="n">Empty</span><span class="p">;</span>
+    <span class="k">foreach</span> <span class="p">(</span><span class="kt">var</span> <span class="n">s</span> <span class="k">in</span> <span class="n">strings</span><span class="p">)</span>
+        <span class="n">sum</span> <span class="p">+=</span> <span class="n">s</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">sum</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>Now anyone can add cases by simply implementing Sum for their type.
+As a nice side-effect we can also let the implementation dictate
+the zero case.</p>
+
+<p>However, as you can see, the code is basically copied for each type.
+As good programmers our instinct is to generalize the algorithm for
+all supported types to remove this blatant violation of the DRY principle.
+One problem we must overcome first is that our add-operation is just
+as ad-hoc as our sum-operation.</p>
+
+<p>Lets apply the standard OOP-solution, subtype polymorphism, to fix
+this:</p>
+<div class="highlight"><pre><code class="c#"><span class="k">public</span> <span class="k">interface</span> <span class="n">Addable</span>
+<span class="p">{</span>
+    <span class="n">Addable</span> <span class="nf">Add</span><span class="p">(</span><span class="n">Addable</span> <span class="n">addend</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// To support the empty case we have to ask the caller to supply the zero value.</span>
+<span class="k">public</span> <span class="k">static</span> <span class="n">Addable</span> <span class="nf">Sum</span><span class="p">(</span><span class="k">this</span> <span class="n">IEnumerable</span><span class="p">&lt;</span><span class="n">Addable</span><span class="p">&gt;</span> <span class="n">summables</span><span class="p">,</span> <span class="n">Addable</span> <span class="n">zero</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">var</span> <span class="n">sum</span> <span class="p">=</span> <span class="n">zero</span><span class="p">;</span>
+    <span class="k">foreach</span> <span class="p">(</span><span class="kt">var</span> <span class="n">s</span> <span class="k">in</span> <span class="n">summables</span><span class="p">)</span>
+        <span class="n">sum</span> <span class="p">=</span> <span class="n">sum</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">sum</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>Adding cases is still possible by simply implementing Addable. Unfortunately we can&#39;t
+actually do this for types we can&#39;t control, like int and string. Which is the other
+side of the expression problem.</p>
+
+<p>Unfortunately we are also now back not knowing what to do with the zero-case.</p>
+
+<p>This particular implementation also suffers from a type safety issue where each
+Add-implementation must check for compatible types at run-time. We can fix this
+with type parameters, which I&#39;ll include here just so you can stop thinking
+about it.</p>
+<div class="highlight"><pre><code class="c#"><span class="k">public</span> <span class="k">interface</span> <span class="n">Addable</span><span class="p">&lt;</span><span class="n">ThisType</span><span class="p">&gt;</span> <span class="k">where</span> <span class="n">ThisType</span> <span class="p">:</span> <span class="n">Addable</span><span class="p">&lt;</span><span class="n">ThisType</span><span class="p">&gt;</span>
+<span class="p">{</span>
+    <span class="n">ThisType</span> <span class="nf">Add</span><span class="p">(</span><span class="n">ThisType</span> <span class="n">addend</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">public</span> <span class="k">static</span> <span class="n">T</span> <span class="n">Sum</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;(</span><span class="k">this</span> <span class="n">IEnumerable</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;</span> <span class="n">summables</span><span class="p">,</span> <span class="n">T</span> <span class="n">zero</span><span class="p">)</span> <span class="k">where</span> <span class="n">T</span> <span class="p">:</span> <span class="n">Addable</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;</span> <span class="p">{</span>
+    <span class="kt">var</span> <span class="n">sum</span> <span class="p">=</span> <span class="n">zero</span><span class="p">;</span>
+    <span class="k">foreach</span> <span class="p">(</span><span class="kt">var</span> <span class="n">s</span> <span class="k">in</span> <span class="n">summables</span><span class="p">)</span>
+        <span class="n">sum</span> <span class="p">=</span> <span class="n">sum</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">sum</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<h2 id="toc_6">Parametric Polymorphism</h2>
+
+<p>We still need to fix the bigger issue of how to add cases for types we can&#39;t
+edit though.</p>
+
+<p>To resolve the situation we could abandon the Addable abstraction and rely
+entirely on parametric polymorphism where we the caller supply us both with
+the zero case and the add-operation.</p>
+<div class="highlight"><pre><code class="c#"><span class="k">public</span> <span class="k">static</span> <span class="n">T</span> <span class="n">Sum</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;(</span><span class="k">this</span> <span class="n">IEnumerable</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;</span> <span class="n">summables</span><span class="p">,</span> <span class="n">T</span> <span class="n">zero</span><span class="p">,</span> <span class="n">Func</span><span class="p">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">T</span><span class="p">&gt;</span> <span class="k">add</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">var</span> <span class="n">sum</span> <span class="p">=</span> <span class="n">zero</span><span class="p">;</span>
+    <span class="k">foreach</span> <span class="p">(</span><span class="kt">var</span> <span class="n">s</span> <span class="k">in</span> <span class="n">summables</span><span class="p">)</span>
+        <span class="n">sum</span> <span class="p">=</span> <span class="k">add</span><span class="p">(</span><span class="n">sum</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">sum</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// In fact, this operation is already provided by LINQ</span>
+<span class="k">public</span> <span class="k">static</span> <span class="n">T</span> <span class="n">LINQSum</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;(</span><span class="k">this</span> <span class="n">IEnumerable</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;</span> <span class="n">summables</span><span class="p">,</span> <span class="n">T</span> <span class="n">zero</span><span class="p">,</span> <span class="n">Func</span><span class="p">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">T</span><span class="p">&gt;</span> <span class="k">add</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">summables</span><span class="p">.</span><span class="n">Aggregate</span><span class="p">(</span><span class="n">zero</span><span class="p">,</span> <span class="k">add</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>Now we can sum anything that someone could provide a zero and an add operation for and
+neither our Sum-operation or any types needs to change to support new cases.</p>
+
+<p>The problem is that we&#39;ve put the responsibility of verifying the contract of the
+add-operation on to the caller of our Sum-operation. Not a very nice thing to do.</p>
+
+<p>This is the part where type classes enter the picture. We would like to declare the contract
+which our Sum-operation depends on, and we would like implementations of this contract
+to be available to our poor API-user.</p>
+
+<p>Our contract stipulates the relationship between add and zero like so:
+$$add(zero, x) = x = add(x, zero)$$
+$$add(x, add(y, z)) = add(add(x, y), z)$$
+for any x, y and z.
+In fact there is a concept like this in abstract algebra called a Monoid.</p>
+<div class="highlight"><pre><code class="c#"><span class="k">public</span> <span class="k">sealed</span> <span class="k">class</span> <span class="nc">Monoid</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;</span> <span class="p">:</span> <span class="n">TypeClass</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">readonly</span> <span class="n">T</span> <span class="n">Zero</span><span class="p">;</span>
+    <span class="k">public</span> <span class="k">readonly</span> <span class="n">Func</span><span class="p">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">T</span><span class="p">&gt;</span> <span class="n">Add</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="nf">Monoid</span><span class="p">(</span><span class="n">T</span> <span class="n">zero</span><span class="p">,</span> <span class="n">Func</span><span class="p">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">T</span><span class="p">&gt;</span> <span class="k">add</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">Law</span><span class="p">(</span><span class="s">&quot;Left identity&quot;</span><span class="p">,</span>    <span class="p">(</span><span class="n">T</span> <span class="n">x</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="k">add</span><span class="p">(</span><span class="n">zero</span><span class="p">,</span> <span class="n">x</span><span class="p">).</span><span class="n">Equals</span><span class="p">(</span><span class="n">x</span><span class="p">));</span>
+        <span class="n">Law</span><span class="p">(</span><span class="s">&quot;Right identity&quot;</span><span class="p">,</span>   <span class="p">(</span><span class="n">T</span> <span class="n">x</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="k">add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">zero</span><span class="p">).</span><span class="n">Equals</span><span class="p">(</span><span class="n">x</span><span class="p">));</span>
+        <span class="n">Law</span><span class="p">(</span><span class="s">&quot;Associative&quot;</span><span class="p">,</span>      <span class="p">(</span><span class="n">T</span> <span class="n">x</span><span class="p">,</span> <span class="n">T</span> <span class="n">y</span><span class="p">,</span> <span class="n">T</span> <span class="n">z</span><span class="p">)</span> <span class="p">=&gt;</span>
+            <span class="k">add</span><span class="p">(</span><span class="k">add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">z</span><span class="p">).</span><span class="n">Equals</span><span class="p">(</span><span class="k">add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="k">add</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">))));</span>
+
+        <span class="k">this</span><span class="p">.</span><span class="n">Zero</span> <span class="p">=</span> <span class="n">zero</span><span class="p">;</span>
+        <span class="k">this</span><span class="p">.</span><span class="n">Add</span> <span class="p">=</span> <span class="k">add</span><span class="p">;</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>Given this contract we can use it as a dependency for our Sum:</p>
+<div class="highlight"><pre><code class="c#"><span class="k">public</span> <span class="k">static</span> <span class="n">T</span> <span class="n">Sum</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;(</span><span class="k">this</span> <span class="n">IEnumerable</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;</span> <span class="n">summables</span><span class="p">,</span> <span class="n">Monoid</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;</span> <span class="n">mon</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">summables</span><span class="p">.</span><span class="n">Aggregate</span><span class="p">(</span><span class="n">mon</span><span class="p">.</span><span class="n">Zero</span><span class="p">,</span> <span class="n">mon</span><span class="p">.</span><span class="n">Add</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>Now we have a fully generic sum operation where the contract
+for being summable is extracted into the Monoid type class.</p>
+
+<p>Adding new cases requires no recompilation of either types
+or the Sum-implementation. While still requesting a monoid
+from the API-user, we are certain that it conforms to our
+contract, and it&#39;s possible for anyone to provide usable
+implementations to the user.</p>
+
+<p>In languages with first class support for type classes (like
+Haskell and Scala) type class instances are provided implicitly
+by the compiler making the invocation of the operation look like
+ordinary ad-hoc polymorphism.</p>
+
+<p>In C# we have no such luxury at compile time, but could use
+dependency injection to provide a similar service at runtime.</p>
+<div class="highlight"><pre><code class="c#"><span class="k">public</span> <span class="k">static</span> <span class="n">T</span> <span class="n">Sum</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;(</span><span class="k">this</span> <span class="n">IEnumerable</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;</span> <span class="n">ts</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">var</span> <span class="n">mon</span> <span class="p">=</span> <span class="n">ObjectFactory</span><span class="p">.</span><span class="n">GetInstance</span><span class="p">&lt;</span><span class="n">Monoid</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;&gt;();</span>
+    <span class="k">return</span> <span class="n">ts</span><span class="p">.</span><span class="n">Aggregate</span><span class="p">(</span><span class="n">mon</span><span class="p">.</span><span class="n">Zero</span><span class="p">,</span> <span class="n">mon</span><span class="p">.</span><span class="n">Add</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>A slightly more verbose approach is to revert back to the original
+ad-hoc approach. But this time we can reuse all parts of the code.
+We cold even generate this code using a T4 template.</p>
+<div class="highlight"><pre><code class="c#"><span class="k">public</span> <span class="k">static</span> <span class="k">readonly</span> <span class="n">Monoid</span><span class="p">&lt;</span><span class="kt">int</span><span class="p">&gt;</span> <span class="n">INT_ADDITION_MONOID</span> <span class="p">=</span>
+    <span class="k">new</span> <span class="n">Monoid</span><span class="p">&lt;</span><span class="kt">int</span><span class="p">&gt;(</span><span class="m">0</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="n">x</span> <span class="p">+</span> <span class="n">y</span><span class="p">);</span>
+
+<span class="k">public</span> <span class="k">static</span> <span class="kt">int</span> <span class="nf">Sum</span><span class="p">(</span><span class="k">this</span> <span class="n">IEnumerable</span><span class="p">&lt;</span><span class="kt">int</span><span class="p">&gt;</span> <span class="n">vals</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">vals</span><span class="p">.</span><span class="n">Sum</span><span class="p">(</span><span class="n">INT_ADDITION_MONOID</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">public</span> <span class="k">static</span> <span class="k">readonly</span> <span class="n">Monoid</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">&gt;</span> <span class="n">STRING_MONOID</span> <span class="p">=</span>
+    <span class="k">new</span> <span class="n">Monoid</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">&gt;(</span><span class="kt">string</span><span class="p">.</span><span class="n">Empty</span><span class="p">,</span> <span class="kt">string</span><span class="p">.</span><span class="n">Concat</span><span class="p">);</span>
+
+<span class="k">public</span> <span class="k">static</span> <span class="kt">string</span> <span class="nf">Sum</span><span class="p">(</span><span class="k">this</span> <span class="n">IEnumerable</span><span class="p">&lt;</span><span class="kt">string</span><span class="p">&gt;</span> <span class="n">vals</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">vals</span><span class="p">.</span><span class="n">Sum</span><span class="p">(</span><span class="n">STRING_MONOID</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+</div>
+<div id="disqus_thread"></div>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript" ></script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$']]}});
+</script>
+
+<script src="http://alexgorbatchev.com/pub/sh/current/scripts/shCore.js" type="text/javascript"></script>
+<script src="http://alexgorbatchev.com/pub/sh/current/scripts/shBrushScala.js" type="text/javascript"></script>
+<script type="text/javascript">
+SyntaxHighlighter.defaults['gutter'] = false;
+SyntaxHighlighter.all();
+</script>
+<script type="text/javascript">
+  var disqus_shortname = 'johnnilsson-github';
+
+  (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+  </div>
+</body>
+</html>
