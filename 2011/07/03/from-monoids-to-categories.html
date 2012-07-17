@@ -26,10 +26,11 @@ $$\forall x,y,z \in M$$
 $$(x \centerdot y) \centerdot z = x \centerdot (y \centerdot z)$$
 $$e \centerdot x = x = x \centerdot e$$</p>
 
-<p>In Scala we can encode this as
+<p>In Scala we can encode this as</p>
+
 <pre class="brush: scala">
-    class Monoid<a href="id:%20T,%20op:%20(T,%20T">T</a> =&gt; T)
-</pre></p>
+    class Monoid[T](id: T, op: (T, T) => T)
+</pre>
 
 <p>Typical monoids most of us are familiar with are addition and multiplication with their respective identity $(\mathbb{R},+,0)$ and $(\mathbb{R},\times,1)$. These examples happens to also be commutative but this is not a requirement for monads. As an example of a non-commutative monad consider string concatenation.</p>
 
@@ -64,27 +65,28 @@ be a valid composition at all.</p>
 
 <p><aside>I&#39;m using $\circ$ in what&#39;s called <dfn>diagrammatic order</dfn> here because I think it makes more sense, math texts usually put it the other way around though.</aside></p>
 
-<p>Let&#39;s see if we can encode this in Scala:
+<p>Let&#39;s see if we can encode this in Scala:</p>
+
 <pre class="brush: scala">
     trait Category {
-      type →[<em>,</em>]</p>
-<div class="highlight"><pre><code class="text">  def id[A]: A â†’ A
-  def compose[A, B, C]: (A â†’ B, B â†’ C) â‡’ A â†’ C
-}
-</code></pre>
-</div>
-<p></pre></p>
+      type →[_,_]
+
+      def id[A]: A → A
+      def compose[A, B, C]: (A → B, B → C) ⇒ A → C
+    }
+</pre>
 
 <p>To construct a category out of our monoid definition above we can take the set to be an object of the category, and its members be <dfn title="A fancy word for a morphism with the same domain and codomain.">endomorphisms</dfn> on this object. In fact all objects in a category forms monoids in this sense.</p>
 
-<p><pre class="brush: scala">
-    class Monoid<a href="id:%20T,%20op:%20(T,%20T">T</a> ⇒ T) extends Category {
+<pre class="brush: scala">
+    class Monoid[T](id: T, op: (T, T) ⇒ T) extends Category {
       type →[A,B] = T
       def id[A] = id
       def compose[A, B, C] = op
     }
 </pre>
-<aside>
+
+<p><aside>
 Btw, the fact that higher kinded types, like $\rightarrow[A,B]$ above, can return any type is kind of interesting. Having damanged my brain from to much Java I assumed for a long time that a higher kinded types only abstracted over parameterized classes with the same arity. They do not though, they are just type level functions, free to return what ever they want, similar in spirtit to value level functions.</aside></p>
 
 </div>

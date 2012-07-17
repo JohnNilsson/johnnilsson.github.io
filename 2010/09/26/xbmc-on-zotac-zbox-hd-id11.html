@@ -56,7 +56,8 @@ drivers. So make sure the nvidia drivers are 190+ (I&#39;m running 260 something
 <li>Run Ubuntu Maverick Meerkat as your base system. (This is what I did)</li>
 </ul>
 
-<p>Step two is to make sure the correct audio device is used when playing audio. For some reason the driver will provide you with four different HDMI interfaces.
+<p>Step two is to make sure the correct audio device is used when playing audio. For some reason the driver will provide you with four different HDMI interfaces.</p>
+
 <pre>
   xbmc@XBMCLive:~$ aplay -l
   **** List of PLAYBACK Hardware Devices ****
@@ -72,11 +73,12 @@ drivers. So make sure the nvidia drivers are 190+ (I&#39;m running 260 something
   card 0: NVidia [HDA NVidia], device 9: NVIDIA HDMI [NVIDIA HDMI]
     Subdevices: 1/1
     Subdevice #0: subdevice #0
-</pre></p>
+</pre>
 
 <p>By default I guess device 3 is used. This won&#39;t produce much audio though so you have to tell the system to use one of the other interfaces (a wild guess is that theese interfaces needs to be combined in some manner to enable full surround. As I&#39;m only aiming for 2.0 I can&#39;t really tell though).</p>
 
-<p>One way to achieve this is to add this configuration to <em>/etc/asound.conf</em> (just create the file, <a href="http://alsa.opensrc.org/.asoundrc">it isn&#39;t supposed to be there by default</a>):
+<p>One way to achieve this is to add this configuration to <em>/etc/asound.conf</em> (just create the file, <a href="http://alsa.opensrc.org/.asoundrc">it isn&#39;t supposed to be there by default</a>):</p>
+
 <pre>
 pcm.!default {
 type hw
@@ -87,7 +89,7 @@ ctl.!default {
 type hw
 card 0
 }
-</pre></p>
+</pre>
 
 <p>There are som tips scattered around the web involving apllying patches and messing around with the internals of ALSA and module loading to get everything setup. For me it was enough to get ALSA 1.0.23 installed and picking the correct audio device as default.</p>
 

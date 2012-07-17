@@ -54,7 +54,7 @@ this code each time someone would like to support another case for an addable
 type. Which is precisely what the expression problem is all about.</p>
 
 <p>It also suffers from lack of type safety. Invoking this code will compile
-event if the type we are trying to sum isn&#39;t supported.</p>
+even if the type we are trying to sum isn&#39;t supported.</p>
 
 <h2 id="toc_5">Ad-hoc polymorphism</h2>
 
@@ -85,6 +85,8 @@ all supported types to remove this blatant violation of the DRY principle.
 One problem we must overcome first is that our add-operation is just
 as ad-hoc as our sum-operation.</p>
 
+<h2 id="toc_6">Subtype polymorphism</h2>
+
 <p>Lets apply the standard OOP-solution, subtype polymorphism, to fix
 this:</p>
 <div class="highlight"><pre><code class="c#"><span class="k">public</span> <span class="k">interface</span> <span class="n">Addable</span>
@@ -108,8 +110,11 @@ side of the expression problem.</p>
 <p>Unfortunately we are also now back not knowing what to do with the zero-case.</p>
 
 <p>This particular implementation also suffers from a type safety issue where each
-Add-implementation must check for compatible types at run-time. We can fix this
-with type parameters, which I&#39;ll include here just so you can stop thinking
+Add-implementation must check for compatible types at run-time.</p>
+
+<h2 id="toc_7">Parametric Subtype Polymorphism</h2>
+
+<p>We can fix this with type parameters, which I&#39;ll include here just so you can stop thinking
 about it.</p>
 <div class="highlight"><pre><code class="c#"><span class="k">public</span> <span class="k">interface</span> <span class="n">Addable</span><span class="p">&lt;</span><span class="n">ThisType</span><span class="p">&gt;</span> <span class="k">where</span> <span class="n">ThisType</span> <span class="p">:</span> <span class="n">Addable</span><span class="p">&lt;</span><span class="n">ThisType</span><span class="p">&gt;</span>
 <span class="p">{</span>
@@ -124,10 +129,10 @@ about it.</p>
 <span class="p">}</span>
 </code></pre>
 </div>
-<h2 id="toc_6">Parametric Polymorphism</h2>
-
 <p>We still need to fix the bigger issue of how to add cases for types we can&#39;t
 edit though.</p>
+
+<h2 id="toc_8">Parametric Polymorphism</h2>
 
 <p>To resolve the situation we could abandon the Addable abstraction and rely
 entirely on parametric polymorphism where we the caller supply us both with
@@ -153,15 +158,20 @@ neither our Sum-operation or any types needs to change to support new cases.</p>
 <p>The problem is that we&#39;ve put the responsibility of verifying the contract of the
 add-operation on to the caller of our Sum-operation. Not a very nice thing to do.</p>
 
-<p>This is the part where type classes enter the picture. We would like to declare the contract
+<h2 id="toc_9">The Monoid</h2>
+
+<p>We would like to declare the contract
 which our Sum-operation depends on, and we would like implementations of this contract
 to be available to our poor API-user.</p>
 
 <p>Our contract stipulates the relationship between add and zero like so:
-$$add(zero, x) = x = add(x, zero)$$
-$$add(x, add(y, z)) = add(add(x, y), z)$$
-for any x, y and z.
-In fact there is a concept like this in abstract algebra called a Monoid.</p>
+$$\forall x, y, z \in \mathrm{T} \begin{cases}
+    \mathrm{add}(\mathrm{zero}, x) = x, & \text{Left identity} \\
+    \mathrm{add}(x, \mathrm{zero}) = x, & \text{Right identity} \\
+    \mathrm{add}(\mathrm{add}(x, y), z) = \mathrm{add}(x, \mathrm{add}(y, z)), & \text{Associative}
+\end{cases}$$</p>
+
+<p>In fact there is a concept like this in abstract algebra called a Monoid.</p>
 <div class="highlight"><pre><code class="c#"><span class="k">public</span> <span class="k">sealed</span> <span class="k">class</span> <span class="nc">Monoid</span><span class="p">&lt;</span><span class="n">T</span><span class="p">&gt;</span> <span class="p">:</span> <span class="n">TypeClass</span>
 <span class="p">{</span>
     <span class="k">public</span> <span class="k">readonly</span> <span class="n">T</span> <span class="n">Zero</span><span class="p">;</span>
@@ -188,6 +198,8 @@ In fact there is a concept like this in abstract algebra called a Monoid.</p>
 <span class="p">}</span>
 </code></pre>
 </div>
+<h2 id="toc_10">Type Classes</h2>
+
 <p>Now we have a fully generic sum operation where the contract
 for being summable is extracted into the Monoid type class.</p>
 
@@ -212,7 +224,7 @@ dependency injection to provide a similar service at runtime.</p>
 </code></pre>
 </div>
 <p>A slightly more verbose approach is to revert back to the original
-ad-hoc approach. But this time we can reuse all parts of the code.
+ad-hoc polymorphism. But this time we can reuse all parts of the code.
 We cold even generate this code using a T4 template.</p>
 <div class="highlight"><pre><code class="c#"><span class="k">public</span> <span class="k">static</span> <span class="k">readonly</span> <span class="n">Monoid</span><span class="p">&lt;</span><span class="kt">int</span><span class="p">&gt;</span> <span class="n">INT_ADDITION_MONOID</span> <span class="p">=</span>
     <span class="k">new</span> <span class="n">Monoid</span><span class="p">&lt;</span><span class="kt">int</span><span class="p">&gt;(</span><span class="m">0</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="n">x</span> <span class="p">+</span> <span class="n">y</span><span class="p">);</span>
