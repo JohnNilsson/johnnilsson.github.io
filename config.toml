@@ -1,6 +1,8 @@
 # Zola config
 
-base_url = "https://curiousskeptic.com"
+#base_url = "https://johnnilsson.github.io/"
+#base_url = "https://curiousskeptic.com/"
+base_url = "/"
 theme = "sam"
 taxonomies = [
     { name = "tags", rss = true },
