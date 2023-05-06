@@ -1,0 +1,20 @@
+# Zola config
+
+base_url = "https://curiousskeptic.com"
+theme = "sam"
+taxonomies = [
+    { name = "tags", rss = true },
+]
+
+compile_sass = true
+build_search_index = false
+
+[markdown]
+highlight_code = true
+
+[extra]
+sam_menu = [
+    { text = "blog", link = "/blog" },
+    { text = "github", link = "https://github.com/JohnNilsson/" }
+]
+sam_bottom_menu = true
