@@ -3,6 +3,8 @@
 #base_url = "https://johnnilsson.github.io/"
 #base_url = "https://curiousskeptic.com/"
 base_url = "/"
+title = "Curious Skeptic"
+
 theme = "sam"
 taxonomies = [
     { name = "tags", rss = true },
@@ -15,6 +17,7 @@ build_search_index = false
 highlight_code = true
 
 [extra]
+date_format = "%Y-%m-%d"
 sam_menu = [
     { text = "blog", link = "/blog" },
     { text = "github", link = "https://github.com/JohnNilsson/" }
