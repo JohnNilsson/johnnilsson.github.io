@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>/</loc>
+    </url>
+    <url>
+        <loc>/blog/</loc>
+    </url>
+    <url>
+        <loc>/blog/category-theory-in-scala/</loc>
+        <lastmod>2011-07-02</lastmod>
+    </url>
+    <url>
+        <loc>/blog/from-monoids-to-categories/</loc>
+        <lastmod>2011-07-03</lastmod>
+    </url>
+    <url>
+        <loc>/blog/type-classes/</loc>
+        <lastmod>2012-07-15</lastmod>
+    </url>
+    <url>
+        <loc>/tags/</loc>
+    </url>
+</urlset>
